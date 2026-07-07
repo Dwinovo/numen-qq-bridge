@@ -35,8 +35,8 @@ public final class NumenQq {
         NapCatClient client = new NapCatClient(cfg, msg -> deliver(cfg, msg));
         client.start();
         ToolRegistry.register(new SendQqMessageTool(client, cfg));
-        Constants.LOG.info("[numen-qq] bridge up: {} group(s) whitelisted, private={}",
-                cfg.groupWhitelist().size(), cfg.listenPrivate());
+        Constants.LOG.info("[numen-qq] bridge up: {} group(s) + {} private user(s) whitelisted",
+                cfg.groupWhitelist().size(), cfg.userWhitelist().size());
     }
 
     /**
@@ -51,9 +51,11 @@ public final class NumenQq {
                 Constants.LOG.warn("[numen-qq] QQ message dropped — no companion on the roster yet");
                 return;
             }
+            // Both labels carry the numeric id — it is what the model passes
+            // back to send_qq_message (group_id / user_id) when it replies.
             String label = msg.groupId() != 0
                     ? "[QQ群" + msg.groupId() + " · " + msg.senderName() + "]"
-                    : "[QQ私聊 · " + msg.senderName() + "]";
+                    : "[QQ私聊 · " + msg.senderName() + "(" + msg.userId() + ")]";
             boolean ok = NumenGateway.enqueue(target.uuid(), label + " " + msg.text());
             if (!ok) {
                 Constants.LOG.warn("[numen-qq] enqueue for {} refused — open the companion's chat once "

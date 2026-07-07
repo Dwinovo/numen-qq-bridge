@@ -194,7 +194,8 @@ public final class NapCatClient {
                 long groupId = o.has("group_id") ? o.get("group_id").getAsLong() : 0L;
                 if (!cfg.groupWhitelist().contains(groupId)) return;
                 handler.accept(new Inbound(groupId, userId, name, text));
-            } else if ("private".equals(type) && cfg.listenPrivate()) {
+            } else if ("private".equals(type)) {
+                if (!cfg.userWhitelist().contains(userId)) return;
                 handler.accept(new Inbound(0L, userId, name, text));
             }
         }

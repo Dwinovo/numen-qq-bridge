@@ -15,16 +15,17 @@ import java.util.List;
 /**
  * Bridge config at {@code config/numen/qq_bridge.json}. Plain Gson-over-file,
  * created with commented-by-README defaults on first launch. An empty
- * {@code ws_url} disables the bridge entirely; an empty {@code group_whitelist}
- * accepts NO group messages — every listened group is an explicit opt-in, so a
- * bot sitting in thirty groups doesn't flood the companion (and the owner's
- * API bill) by default.
+ * {@code ws_url} disables the bridge entirely. Both whitelists share one
+ * convention — <b>empty = accept nothing</b>: every listened group and every
+ * QQ account allowed to command the companion over private chat is an
+ * explicit opt-in, because whoever gets through is spending the owner's LLM
+ * tokens.
  */
 public record QqBridgeConfig(
         String wsUrl,
         String accessToken,
         List<Long> groupWhitelist,
-        boolean listenPrivate,
+        List<Long> userWhitelist,
         String companionName) {
 
     public boolean enabled() {
@@ -39,27 +40,31 @@ public record QqBridgeConfig(
     public static QqBridgeConfig load(Path file) {
         if (!Files.isRegularFile(file)) {
             writeDefault(file);
-            return new QqBridgeConfig("", "", List.of(), false, "");
+            return new QqBridgeConfig("", "", List.of(), List.of(), "");
         }
         try {
             JsonObject o = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8))
                     .getAsJsonObject();
-            List<Long> groups = new ArrayList<>();
-            if (o.has("group_whitelist") && o.get("group_whitelist").isJsonArray()) {
-                for (JsonElement el : o.getAsJsonArray("group_whitelist")) {
-                    groups.add(el.getAsLong());
-                }
-            }
             return new QqBridgeConfig(
                     str(o, "ws_url"),
                     str(o, "access_token"),
-                    List.copyOf(groups),
-                    o.has("listen_private") && o.get("listen_private").getAsBoolean(),
+                    longs(o, "group_whitelist"),
+                    longs(o, "user_whitelist"),
                     str(o, "companion_name"));
         } catch (IOException | RuntimeException ex) {
             Constants.LOG.warn("[numen-qq] unreadable config {} — bridge disabled: {}", file, ex.toString());
-            return new QqBridgeConfig("", "", List.of(), false, "");
+            return new QqBridgeConfig("", "", List.of(), List.of(), "");
         }
+    }
+
+    private static List<Long> longs(JsonObject o, String key) {
+        List<Long> out = new ArrayList<>();
+        if (o.has(key) && o.get(key).isJsonArray()) {
+            for (JsonElement el : o.getAsJsonArray(key)) {
+                out.add(el.getAsLong());
+            }
+        }
+        return List.copyOf(out);
     }
 
     private static void writeDefault(Path file) {
@@ -67,7 +72,7 @@ public record QqBridgeConfig(
         o.addProperty("ws_url", "");
         o.addProperty("access_token", "");
         o.add("group_whitelist", new JsonArray());
-        o.addProperty("listen_private", false);
+        o.add("user_whitelist", new JsonArray());
         o.addProperty("companion_name", "");
         try {
             Files.createDirectories(file.getParent());

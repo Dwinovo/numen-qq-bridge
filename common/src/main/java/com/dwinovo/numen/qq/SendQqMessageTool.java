@@ -32,11 +32,13 @@ public final class SendQqMessageTool implements NumenTool {
 
     @Override
     public String description() {
-        return "Send a chat message to a QQ group through the connected QQ bot. "
-                + "Use this to answer requests that arrived from QQ (their messages are prefixed "
-                + "like [QQ群123456 · 昵称]) or when the owner asks you to notify the QQ group. "
-                + "Reply in the language the QQ message used. "
-                + "group_id may be omitted: it defaults to the group the bridge is configured for.";
+        return "Send a chat message over QQ through the connected QQ bot. "
+                + "Use this to answer requests that arrived from QQ, or when the owner asks you to "
+                + "notify someone on QQ. Requests from a group are prefixed [QQ群123456 · 昵称] — "
+                + "reply with that group_id. Requests from a direct chat are prefixed "
+                + "[QQ私聊 · 昵称(123456)] — reply with that number as user_id. "
+                + "Pass exactly one of group_id / user_id; with neither, the default configured "
+                + "group is used. Reply in the language the QQ message used.";
     }
 
     @Override
@@ -46,10 +48,13 @@ public final class SendQqMessageTool implements NumenTool {
                 "properties", Map.of(
                         "message", Map.of(
                                 "type", "string",
-                                "description", "The chat text to send to the QQ group."),
+                                "description", "The chat text to send."),
                         "group_id", Map.of(
                                 "type", "integer",
-                                "description", "Target QQ group number. Omit to use the default configured group.")),
+                                "description", "Target QQ group number, for replies to group messages."),
+                        "user_id", Map.of(
+                                "type", "integer",
+                                "description", "Target QQ account number, for replies to direct ([QQ私聊]) messages.")),
                 "required", List.of("message"));
     }
 
@@ -61,10 +66,17 @@ public final class SendQqMessageTool implements NumenTool {
             call.complete(TaskResult.fail("message is empty").toJson());
             return;
         }
+        if (args.has("user_id")) {
+            long userId = args.get("user_id").getAsLong();
+            client.sendPrivateMsg(userId, message);
+            call.complete(TaskResult.ok("sent to QQ user " + userId).toJson());
+            return;
+        }
         long groupId = args.has("group_id") ? args.get("group_id").getAsLong() : cfg.defaultGroup();
         if (groupId == 0) {
             call.complete(TaskResult.fail(
-                    "no target group: pass group_id or add one to group_whitelist in qq_bridge.json").toJson());
+                    "no target: pass group_id or user_id (see the [QQ…] prefix of the request), "
+                    + "or add a group to group_whitelist in qq_bridge.json").toJson());
             return;
         }
         client.sendGroupMsg(groupId, message);
