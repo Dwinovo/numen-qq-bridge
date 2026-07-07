@@ -12,7 +12,7 @@ dependencies {
     // The numen-api engine, a mod dependency at runtime. NOT include()d — the
     // player already has it: numen-core bundles the engine, and this bridge is
     // useless without a companion to talk to.
-    modImplementation "com.dwinovo.numen:numen-api-fabric-1.21.1:0.0.1-SNAPSHOT"
+    modImplementation "com.dwinovo.numen:numen-api-fabric-1.21.1:0.0.2-SNAPSHOT"
 }
 
 loom {
