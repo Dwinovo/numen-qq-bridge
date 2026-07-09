@@ -8,8 +8,8 @@
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://github.com/Dwinovo/numen-qq-mcp",
-        "sources": "https://github.com/Dwinovo/numen-qq-mcp"
+        "homepage": "https://github.com/Dwinovo/numen-qq-bridge",
+        "sources": "https://github.com/Dwinovo/numen-qq-bridge"
     },
     "license": "${license}",
     "environment": "client",

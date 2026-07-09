@@ -1,4 +1,4 @@
-# Numen QQ Bridge (numen-qq-mcp)
+# Numen QQ Bridge (numen-qq-bridge)
 
 English | [简体中文](README_ZH.md)
 
@@ -145,12 +145,14 @@ Depends on `com.dwinovo.numen:numen-api-*-1.21.1:0.0.2-SNAPSHOT`, resolved from 
 
 ## Ecosystem
 
-| Project | What it is |
-|---|---|
-| [Numen](https://github.com/Dwinovo/minecraft-numen) | The AI companion mod this bridge extends |
-| [numen-api](https://github.com/Dwinovo/numen-api) | The engine — this bridge builds on its `NumenGateway` and `ToolRegistry` |
-| [numen-mcp](https://github.com/Dwinovo/numen-mcp) | Sibling addon — drive companions from Claude over MCP |
-| [numen-maven](https://github.com/Dwinovo/numen-maven) | Maven repo that serves numen-api |
+**Numen** ([minecraft-numen](https://github.com/Dwinovo/minecraft-numen)) is the mod — the AI companion. It runs on the **[numen-api](https://github.com/Dwinovo/numen-api)** engine (published through **[numen-maven](https://github.com/Dwinovo/numen-maven)**), which exposes a small public API. Two things build on it:
+
+**Extend a companion** — its own brain stays in charge:
+- **Bridges** carry an outside channel into a companion: a message arrives, and the companion decides what to do. Built on `NumenGateway`. → **[numen-qq-bridge](https://github.com/Dwinovo/numen-qq-bridge)** (QQ), with more to come. *(this repo)*
+- **Skills** teach a companion how to behave — markdown loaded into its context. Bundled with Numen, or community-written.
+
+**Expose Numen** — hand the controls to an outside brain:
+- **[numen-mcp](https://github.com/Dwinovo/numen-mcp)** is a Model Context Protocol server: any external agent (like Claude) drives companions directly. Built on `NumenActuator`.
 
 ---
 
