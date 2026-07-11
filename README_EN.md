@@ -1,6 +1,6 @@
 # Numen QQ Bridge (numen-qq-bridge)
 
-English | [简体中文](README_ZH.md)
+English | [简体中文](README.md)
 
 Bind a Minecraft [Numen](https://github.com/Dwinovo/minecraft-numen) AI companion to a QQ account, and command it from your phone.
 

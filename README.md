@@ -1,6 +1,6 @@
 # Numen QQ Bridge (numen-qq-bridge)
 
-[English](README.md) | 简体中文
+[English](README_EN.md) | 简体中文
 
 给 Minecraft 里的 [Numen](https://github.com/Dwinovo/minecraft-numen) AI 同伴绑定一个 QQ 号,用手机指挥它。
 
